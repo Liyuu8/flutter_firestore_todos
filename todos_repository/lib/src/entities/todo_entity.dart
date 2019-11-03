@@ -28,6 +28,9 @@ class TodoEntity extends Equatable {
   }
 
   @override
+  List<Object> get props => [id, task, note, complete];
+
+  @override
   String toString() {
     return 'TodoEntity { id: $id, task: $task, note: $note, complete: $complete }';
   }

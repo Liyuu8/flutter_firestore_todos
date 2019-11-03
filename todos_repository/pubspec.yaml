@@ -10,14 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-dev_dependencies:
-  flutter:
-    sdk: flutter
   cloud_firestore: ^0.12.9
   rxdart: ^0.22.0
-  equatable: ^0.3.0
+  equatable: ^0.6.1
   firebase_core: ^0.4.0+9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
