@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_firestore_todos/blocs/tab/tab.dart';
-import 'package:flutter_firestore_todos/screens/add_edit_screen.dart';
-import 'package:flutter_firestore_todos/screens/home_screen.dart';
 import 'package:todos_repository/todos_repository.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:flutter_firestore_todos/blocs/blocs.dart';
@@ -50,7 +47,17 @@ class TodosApp extends StatelessWidget {
                     providers: [
                       BlocProvider<TabBloc>(
                         builder: (context) => TabBloc(),
-                      )
+                      ),
+                      BlocProvider<FilteredTodosBloc>(
+                        builder: (context) => FilteredTodosBloc(
+                          todosBloc: BlocProvider.of<TodosBloc>(context),
+                        ),
+                      ),
+                      BlocProvider<StatusBloc>(
+                        builder: (context) => StatusBloc(
+                          todosBloc: BlocProvider.of<TodosBloc>(context),
+                        ),
+                      ),
                     ],
                     child: HomeScreen(),
                   );
