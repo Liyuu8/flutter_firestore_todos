@@ -8,11 +8,13 @@ class Todo {
   final String note;
   final bool complete;
 
-  Todo(this.task, {
-    this.complete = false,
-    String note = '',
-    String id
-  }) : this.note = note ?? '', this.id = id;
+  Todo(
+    this.task, {
+      this.complete = false,
+      String note = '',
+      String id
+    }
+  ) : this.note = note ?? '', this.id = id;
 
   Todo copyWith({bool complete, String id, String note, String task}) {
     return Todo(
