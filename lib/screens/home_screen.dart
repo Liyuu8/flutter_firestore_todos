@@ -7,7 +7,31 @@ import 'package:flutter_firestore_todos/widgets/widgets.dart';
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return null;
+    return BlocBuilder<TabBloc, AppTab>(
+      builder: (context, activeTab) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Firestore Todos'),
+            actions: <Widget>[
+              FilterButton(visible: activeTab == AppTab.todos),
+              ExtraActions(),
+            ],
+          ),
+          body: activeTab == AppTab.todos ? FilteredTodos() : Status(),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/addTodo');
+            },
+            child: Icon(Icons.add),
+            tooltip: 'Add Todo',
+          ),
+          bottomNavigationBar: BottomTabSelector(
+            activeTab: activeTab,
+            onTabSelected: (tab) =>
+              BlocProvider.of<TabBloc>(context).add(UpdateTab(tab)),
+          ),
+        );
+      },
+    );
   }
 }
