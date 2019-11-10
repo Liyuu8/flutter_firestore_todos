@@ -1,0 +1,4 @@
+enum StatusTabBar {
+  Active,
+  Completed,
+}

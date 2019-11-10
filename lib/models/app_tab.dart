@@ -1,4 +1,0 @@
-enum AppTab {
-  todos,
-  status,
-}

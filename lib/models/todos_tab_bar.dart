@@ -1,0 +1,4 @@
+enum TodosTabBar {
+  Active,
+  Completed,
+}

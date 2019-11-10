@@ -3,11 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_firestore_todos/blocs/blocs.dart';
+import 'package:flutter_firestore_todos/models/models.dart';
 import 'package:flutter_firestore_todos/widgets/widgets.dart';
 import 'package:flutter_firestore_todos/screens/screens.dart';
 
 class FilteredTodos extends StatelessWidget {
-  FilteredTodos({Key key}) : super(key: key);
+  final TodosTabBar activeTab;
+
+  FilteredTodos({
+    Key key,
+    @required this.activeTab
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +22,9 @@ class FilteredTodos extends StatelessWidget {
         if(state is FilteredTodosLoading) {
           return LoadingIndicator();
         } else if(state is FilteredTodosLoaded) {
-          final todos = state.filteredTodos;
+          final todos = activeTab == TodosTabBar.Active
+            ? state.filteredTodos.where((todo) => !todo.complete).toList()
+            : state.filteredTodos.where((todo) => todo.complete).toList();
           return ListView.builder(
             itemCount: todos.length,
             itemBuilder: (context, index) {
@@ -26,11 +34,11 @@ class FilteredTodos extends StatelessWidget {
                 onDismessed: (direction) {
                   BlocProvider.of<TodosBloc>(context).add(DeleteTodo(todo));
                   Scaffold.of(context).showSnackBar(
-                      DeleteTodoSnackBar(
-                        todo: todo,
-                        onUndo: () => BlocProvider.of<TodosBloc>(context)
-                            .add(AddTodo(todo)),
-                      ),
+                    DeleteTodoSnackBar(
+                      todo: todo,
+                      onUndo: () => BlocProvider.of<TodosBloc>(context)
+                          .add(AddTodo(todo)),
+                    ),
                   );
                 },
                 onTap: () async {

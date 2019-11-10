@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firestore_todos/models/models.dart';
 
 class BottomTabSelector extends StatelessWidget {
-  final AppTab activeTab;
-  final Function(AppTab) onTabSelected;
+  final BottomNavigationTab activeTab;
+  final Function(BottomNavigationTab) onTabSelected;
 
   BottomTabSelector({
     Key key,
@@ -16,15 +16,17 @@ class BottomTabSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: AppTab.values.indexOf(activeTab),
-      onTap: (index) => onTabSelected(AppTab.values[index]),
-      items: AppTab.values.map((tab) {
+      currentIndex: BottomNavigationTab.values.indexOf(activeTab),
+      onTap: (index) => onTabSelected(BottomNavigationTab.values[index]),
+      items: BottomNavigationTab.values.map((tab) {
         return BottomNavigationBarItem(
           icon: Icon(
-            tab == AppTab.todos ? Icons.list : Icons.show_chart,
+            tab == BottomNavigationTab.todos ? Icons.list : Icons.show_chart,
           ),
           title: Text(
-            tab == AppTab.todos ? 'Todos' : 'Status',
+            tab == BottomNavigationTab.todos
+                ? 'Todos'
+                : 'Status',
           ),
         );
       }).toList(),
