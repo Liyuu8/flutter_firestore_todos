@@ -5,9 +5,9 @@ import 'package:user_repository/user_repository.dart';
 import 'package:flutter_firestore_todos/blocs/authentication/authentication.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent,AuthenticationState> {
-  final UserRepository _userRepository;
+  final FirebaseUserRepository _userRepository;
 
-  AuthenticationBloc({@required UserRepository userRepository}) :
+  AuthenticationBloc({@required FirebaseUserRepository userRepository}) :
       assert(userRepository != null),
       _userRepository = userRepository;
 
@@ -18,20 +18,35 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent,AuthenticationState> {
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
     if(event is AppStarted) {
       yield* _mapAppStartedToState();
+    } else if(event is LoggedIn) {
+      yield* _mapLoggedInToState();
+    } else if(event is LoggedOut) {
+      yield* _mapLoggedOutToState();
     }
   }
 
   Stream<AuthenticationState> _mapAppStartedToState() async* {
     try {
-      final isSignedIn = await _userRepository.isAuthenticated();
-      if(!isSignedIn) {
-        await _userRepository.authenticate();
+      final isSignedIn = await _userRepository.isSignedIn();
+      if(isSignedIn) {
+        final userName = await _userRepository.getUser();
+        yield Authenticated(userName);
+      } else {
+        yield Unauthenticated();
       }
-
-      final userId = await _userRepository.getUserId();
-      yield Authenticated(userId);
     } catch(_) {
       yield Unauthenticated();
     }
   }
+
+  Stream<AuthenticationState> _mapLoggedInToState() async* {
+    yield Authenticated(await _userRepository.getUser());
+  }
+
+  Stream<AuthenticationState> _mapLoggedOutToState() async* {
+    yield Unauthenticated();
+    _userRepository.signOut();
+  }
+
+
 }

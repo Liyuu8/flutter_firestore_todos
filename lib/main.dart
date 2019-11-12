@@ -8,12 +8,23 @@ import 'package:flutter_firestore_todos/screens/screens.dart';
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   BlocSupervisor.delegate = SimpleBlocDelegate();
-  runApp(TodosApp());
+  final FirebaseUserRepository userRepository = FirebaseUserRepository();
+  runApp(TodosApp(userRepository: userRepository));
 }
 
 class TodosApp extends StatelessWidget {
   // This widget is the root of your application.
+  final FirebaseUserRepository _userRepository;
+
+  TodosApp({
+    Key key,
+    @required FirebaseUserRepository userRepository,
+  }) : assert(userRepository != null),
+    _userRepository = userRepository,
+    super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -21,7 +32,7 @@ class TodosApp extends StatelessWidget {
         BlocProvider<AuthenticationBloc>(
           builder: (context) {
             return AuthenticationBloc(
-              userRepository: FirebaseUserRepository(),
+              userRepository: _userRepository,
             )..add(AppStarted());
           },
         ),
@@ -42,6 +53,9 @@ class TodosApp extends StatelessWidget {
           '/': (context) {
             return BlocBuilder<AuthenticationBloc, AuthenticationState>(
               builder: (context, state) {
+                if(state is Unauthenticated) {
+                  return LoginScreen(userRepository: _userRepository);
+                }
                 if(state is Authenticated) {
                   return MultiBlocProvider(
                     providers: [
@@ -60,11 +74,6 @@ class TodosApp extends StatelessWidget {
                       ),
                     ],
                     child: HomeScreen(),
-                  );
-                }
-                if(state is Unauthenticated) {
-                  return Center(
-                    child: Text('Could not authenticate with Firestore'),
                   );
                 }
                 return Center(

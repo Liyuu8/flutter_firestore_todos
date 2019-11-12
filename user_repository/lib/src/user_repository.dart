@@ -1,7 +1,7 @@
 import 'dart:async';
 
 abstract class UserRepository {
-  Future<bool> isAuthenticated();
-  Future<void> authenticate();
-  Future<String> getUserId();
+  Future<bool> isSignedIn();
+//  Future<void> authenticate();
+  Future<String> getUser();
 }

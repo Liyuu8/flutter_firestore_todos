@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_firestore_todos/blocs/blocs.dart';
 import 'package:flutter_firestore_todos/models/models.dart';
 import 'package:flutter_firestore_todos/widgets/widgets.dart';
+import 'package:flutter_firestore_todos/screens/screens.dart';
 
 class HomeScreen extends StatelessWidget {
   final _todosTabBar = [
@@ -32,6 +33,16 @@ class HomeScreen extends StatelessWidget {
               ),
               actions: <Widget>[
 //                FilterButton(visible: activeTab == BottomNavigationTab.todos),
+                IconButton(
+                  icon: Icon(Icons.account_circle),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) {
+                          return ProfileScreen();
+                        }
+                    ),
+                  ),
+                ),
                 ExtraActions(),
               ],
             ),
