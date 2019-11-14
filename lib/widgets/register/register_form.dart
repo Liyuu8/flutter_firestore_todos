@@ -1,67 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:user_repository/user_repository.dart';
 import 'package:flutter_firestore_todos/blocs/authentication/authentication.dart';
-import 'package:flutter_firestore_todos/blocs/login/login.dart';
-import 'package:flutter_firestore_todos/widgets/widgets.dart';
+import 'package:flutter_firestore_todos/blocs/register/register.dart';
+import 'package:flutter_firestore_todos/widgets/register/register.dart';
 
-class LoginForm extends StatefulWidget {
-  final FirebaseUserRepository _userRepository;
-
-  LoginForm({
-    Key key,
-    @required FirebaseUserRepository userRepository,
-  }) : assert(userRepository != null),
-    _userRepository = userRepository,
-    super(key: key);
-
+class RegisterForm extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _LoginFormState();
+  State<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  LoginBloc _loginBloc;
-
-  FirebaseUserRepository get _userRepository => widget._userRepository;
+  RegisterBloc _registerBloc;
 
   bool get isPopulated =>
-      _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+    _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
 
-  bool isLoginButtonEnable(LoginState state) {
+  bool isRegisterButtonEnable(RegisterState state) {
     return state.isFormValid && isPopulated && !state.isSubmitting;
   }
 
   @override
   void initState() {
     super.initState();
-    _loginBloc = BlocProvider.of<LoginBloc>(context);
+    _registerBloc = BlocProvider.of<RegisterBloc>(context);
     _emailController.addListener(_onEmailChanged);
     _passwordController.addListener(_onPasswordChanged);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
+    return BlocListener<RegisterBloc, RegisterState>(
       listener: (context, state) {
-        if(state.isFailure) {
-          Scaffold.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text('Login Failure'),
-                    Icon(Icons.error),
-                  ],
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-        }
         if(state.isSubmitting) {
           Scaffold.of(context)
             ..hideCurrentSnackBar()
@@ -70,7 +42,7 @@ class _LoginFormState extends State<LoginForm> {
                 content: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text('Logging In...'),
+                    Text('Registering...'),
                     CircularProgressIndicator(),
                   ],
                 ),
@@ -78,28 +50,41 @@ class _LoginFormState extends State<LoginForm> {
             );
         }
         if(state.isSuccess) {
-          BlocProvider.of(context).add(LoggedIn());
+          BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
+          Navigator.of(context).pop();
+        }
+        if(state.isFailure) {
+          Scaffold.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text('Registration Failure'),
+                    Icon(Icons.error),
+                  ],
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
         }
       },
-      child: BlocBuilder<LoginBloc, LoginState>(
+      child: BlocBuilder<RegisterBloc, RegisterState>(
         builder: (context, state) {
           return Padding(
-            padding: EdgeInsets.all(15.0),
+            padding: EdgeInsets.all(20),
             child: Form(
               child: ListView(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Image.asset('lib/assets/sky.jpg', height: 250),
-                  ),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
                       icon: Icon(Icons.email),
-                      labelText: 'Email'
+                      labelText: 'Email',
                     ),
+                    autocorrect: false,
                     autovalidate: true,
-                    autocorrect: true,
                     validator: (_) {
                       return !state.isEmailValid ? 'Invalid Email' : null;
                     },
@@ -107,31 +92,21 @@ class _LoginFormState extends State<LoginForm> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
-                        icon: Icon(Icons.lock),
-                        labelText: 'Password'
+                      icon: Icon(Icons.lock),
+                      labelText: 'Password',
                     ),
                     obscureText: true,
-                    autovalidate: true,
                     autocorrect: false,
+                    autovalidate: true,
                     validator: (_) {
                       return !state.isPasswordValid ? 'Invalid Password' : null;
                     },
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        LoginButton(
-                          onPressed: isLoginButtonEnable(state)
-                              ? _onFormSubmitted
-                              : null,
-                        ),
-                        GoogleLoginButton(),
-                        CreateAccountButton(userRepository: _userRepository),
-                      ],
-                    ),
-                  ),
+                  RegisterButton(
+                    onPressed: isRegisterButtonEnable(state)
+                      ? _onFormSubmitted
+                      : null,
+                  )
                 ],
               ),
             ),
@@ -149,20 +124,20 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _onEmailChanged() {
-    _loginBloc.add(
+    _registerBloc.add(
       EmailChanged(email: _emailController.text),
     );
   }
 
   void _onPasswordChanged() {
-    _loginBloc.add(
+    _registerBloc.add(
       PasswordChanged(password: _passwordController.text),
     );
   }
 
   void _onFormSubmitted() {
-    _loginBloc.add(
-      LoginWithCredentialsPressed(
+    _registerBloc.add(
+      Submitted(
         email: _emailController.text,
         password: _passwordController.text,
       ),

@@ -27,8 +27,8 @@ class StatusBloc extends Bloc<StatusEvent, StatusState> {
   }
 
   @override
-  void close() {
+  Future<void> close() {
     _todosSubscription?.cancel();
-    super.close();
+    return super.close();
   }
 }
