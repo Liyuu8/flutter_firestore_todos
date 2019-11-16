@@ -78,7 +78,7 @@ class _LoginFormState extends State<LoginForm> {
             );
         }
         if(state.isSuccess) {
-          BlocProvider.of(context).add(LoggedIn());
+          BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
         }
       },
       child: BlocBuilder<LoginBloc, LoginState>(
