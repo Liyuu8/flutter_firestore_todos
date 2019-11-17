@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:flutter_firestore_todos/blocs/authentication/authentication.dart';
 
-class AuthenticationBloc extends Bloc<AuthenticationEvent,AuthenticationState> {
+class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FirebaseUserRepository _userRepository;
 
   AuthenticationBloc({@required FirebaseUserRepository userRepository}) :
@@ -29,8 +29,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent,AuthenticationState> {
     try {
       final isSignedIn = await _userRepository.isSignedIn();
       if(isSignedIn) {
-        final userName = await _userRepository.getUser();
-        yield Authenticated(userName);
+        final user = await _userRepository.getUser();
+        yield Authenticated(user);
       } else {
         yield Unauthenticated();
       }
@@ -40,7 +40,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent,AuthenticationState> {
   }
 
   Stream<AuthenticationState> _mapLoggedInToState() async* {
-    yield Authenticated(await _userRepository.getUser());
+    yield Authenticated(await _userRepository.getUser()
+        .then((user) => user));
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {

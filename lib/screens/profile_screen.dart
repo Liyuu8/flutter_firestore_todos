@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
               children: <Widget>[
                 Center(
                   child: state is Authenticated
-                      ? Text('Welcome ${state.displayName}')
+                      ? Text('Welcome ${state.user.email}')
                       : Text('Please sign in...'),
                 ),
               ],

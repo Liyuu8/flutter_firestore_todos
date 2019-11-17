@@ -36,64 +36,79 @@ class TodosApp extends StatelessWidget {
             )..add(AppStarted());
           },
         ),
-        BlocProvider<TodosBloc>(
-          builder: (context) {
-            return TodosBloc(
-              todosRepository: FirebaseTodosRepository(),
-            )..add(LoadTodos());
-          },
-        ),
       ],
       child: MaterialApp(
         title: 'Firestore Todos',
         theme: ThemeData(
           primarySwatch: Colors.orange,
         ),
-        routes: {
-          '/': (context) {
-            return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-              builder: (context, state) {
-                if(state is Unauthenticated) {
-                  return LoginScreen(userRepository: _userRepository);
-                }
-                if(state is Authenticated) {
-                  return MultiBlocProvider(
-                    providers: [
-                      BlocProvider<TabBloc>(
-                        builder: (context) => TabBloc(),
-                      ),
-                      BlocProvider<FilteredTodosBloc>(
-                        builder: (context) => FilteredTodosBloc(
-                          todosBloc: BlocProvider.of<TodosBloc>(context),
+        home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            if(state is Unauthenticated) {
+              return LoginScreen(userRepository: _userRepository);
+            }
+            if(state is Authenticated) {
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider<TodosBloc>(
+                    builder: (context) {
+                      return TodosBloc(
+                        todosRepository: FirebaseTodosRepository(
+                          user: state.user,
                         ),
-                      ),
-                      BlocProvider<StatusBloc>(
-                        builder: (context) => StatusBloc(
-                          todosBloc: BlocProvider.of<TodosBloc>(context),
-                        ),
-                      ),
-                    ],
-                    child: HomeScreen(),
-                  );
-                }
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
+                      )..add(LoadTodos());
+                    },
+                  ),
+                ],
+                child: MaterialApp(
+                  theme: ThemeData(
+                    primarySwatch: Colors.orange,
+                  ),
+                  routes: {
+                    '/': (context) {
+                      return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                        builder: (context, state) {
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider<TabBloc>(
+                                builder: (context) => TabBloc(),
+                              ),
+                              BlocProvider<FilteredTodosBloc>(
+                                builder: (context) => FilteredTodosBloc(
+                                  todosBloc: BlocProvider.of<TodosBloc>(context),
+                                ),
+                              ),
+                              BlocProvider<StatusBloc>(
+                                builder: (context) => StatusBloc(
+                                  todosBloc: BlocProvider.of<TodosBloc>(context),
+                                ),
+                              ),
+                            ],
+                            child: HomeScreen(),
+                          );
+                        },
+                      );
+                    },
+                    '/addTodo': (context) {
+                      return AddEditScreen(
+                        onSave: (task, note) {
+                          BlocProvider.of<TodosBloc>(context).add(
+                              AddTodo(Todo(task, note: note))
+                          );
+                        },
+                        isEditing: false,
+                      );
+                    },
+                  },
+                ),
+              );
+            }
+            return Center(
+              child: CircularProgressIndicator(),
             );
           },
-          '/addTodo': (context) {
-            return AddEditScreen(
-              onSave: (task, note) {
-                BlocProvider.of<TodosBloc>(context).add(
-                  AddTodo(Todo(task, note: note))
-                );
-              },
-              isEditing: false,
-            );
-          },
-        },
-      ),
+        ),
+      )
     );
   }
 }

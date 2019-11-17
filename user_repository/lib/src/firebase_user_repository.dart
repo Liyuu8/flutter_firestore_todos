@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:user_repository/user_repository.dart';
 
-class FirebaseUserRepository implements UserRepository {
+class FirebaseUserRepository {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
 
@@ -44,14 +43,12 @@ class FirebaseUserRepository implements UserRepository {
     ]);
   }
 
-  @override
   Future<bool> isSignedIn() async {
     final currentUser = await _firebaseAuth.currentUser();
     return currentUser != null;
   }
 
-  @override
-  Future<String> getUser() async {
-    return (await _firebaseAuth.currentUser()).email;
+  Future<FirebaseUser> getUser() async {
+    return await _firebaseAuth.currentUser();
   }
 }
